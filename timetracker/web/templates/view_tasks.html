@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="task-view-container">
+    <h2>View Logged Tasks</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="GET" action="{{ url_for('view_tasks') }}" class="filter-form">
+        <div>
+            <label for="filter_date">Filter by Date:</label>
+            <input type="date" name="filter_date" id="filter_date" 
+                   value="{{ filter_date_str if filter_date_str else '' }}">
+            <button type="submit">Filter</button>
+            <a href="{{ url_for('view_tasks') }}" class="button-link">Clear Filter</a>
+        </div>
+    </form>
+
+    {% if tasks_list %}
+    <table class="tasks-table">
+        <thead>
+            <tr>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Duration (min)</th>
+                <th>Description</th>
+                <th>Tags</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks_list %}
+            <tr>
+                <td>{{ task.start_time.strftime('%Y-%m-%d %H:%M') if task.start_time else 'N/A' }}</td>
+                <td>{{ task.end_time.strftime('%Y-%m-%d %H:%M') if task.end_time else 'N/A' }}</td>
+                <td>{{ task.duration_minutes }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.tags|join(', ') if task.tags else 'None' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-tasks-message">No tasks found for the selected criteria.</p>
+    {% endif %}
+</div>
+
+<style>
+    .task-view-container {
+        width: 85%; /* Wider for table */
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .filter-form {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Space between elements */
+    }
+    .filter-form label {
+        font-weight: bold;
+    }
+    .filter-form input[type="date"] {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .filter-form button, .button-link {
+        background-color: #007bff; /* Blue */
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none; /* For <a> styled as button */
+        font-size: 0.9em;
+        display: inline-block; /* Align with other form elements */
+    }
+    .filter-form button:hover, .button-link:hover {
+        background-color: #0056b3; /* Darker blue */
+    }
+    .button-link.clear { /* Specific style for clear if needed, or use default */
+        background-color: #6c757d; /* Gray */
+    }
+    .button-link.clear:hover {
+        background-color: #545b62;
+    }
+
+    .tasks-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .tasks-table th, .tasks-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+    }
+    .tasks-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    .tasks-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .tasks-table tr:hover {
+        background-color: #f1f1f1;
+    }
+    .no-tasks-message {
+        text-align: center;
+        font-style: italic;
+        color: #777;
+        margin-top: 20px;
+    }
+    /* Flash messages styling (can be centralized in style.css if not already) */
+    .flashes { list-style-type: none; padding: 0; margin-bottom: 15px; }
+    .flashes li { padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+    .flashes li.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .flashes li.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .flashes li.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+</style>
+{% endblock %}

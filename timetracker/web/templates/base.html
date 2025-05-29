@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ title }} - TimeTracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}">Home</a> |
+        <a href="{{ url_for('pomodoro') }}">Pomodoro Timer</a> |
+        <a href="{{ url_for('log_task') }}">Log Task</a> |
+        <a href="{{ url_for('view_tasks') }}">View Tasks</a> |
+        <a href="{{ url_for('productivity_report') }}">Productivity Report</a>
+        <!-- More nav links will be added later -->
+    </nav>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>

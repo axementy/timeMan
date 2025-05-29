@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="task-log-container">
+    <h2>Log a New Task</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('log_task') }}">
+        <div>
+            <label for="description">Description:</label><br>
+            <textarea name="description" id="description" rows="3" cols="50" required>{{ form_data.description if form_data else '' }}</textarea>
+        </div>
+        <div>
+            <label for="start_time">Start Time:</label><br>
+            <input type="datetime-local" name="start_time" id="start_time" 
+                   value="{{ form_data.start_time if form_data else '' }}" required>
+        </div>
+        <div>
+            <label for="end_time">End Time:</label><br>
+            <input type="datetime-local" name="end_time" id="end_time" 
+                   value="{{ form_data.end_time if form_data else '' }}" required>
+        </div>
+        <div>
+            <label for="duration_minutes">Duration (minutes):</label><br>
+            <input type="number" name="duration_minutes" id="duration_minutes" 
+                   value="{{ form_data.duration_minutes if form_data else '' }}" required min="1">
+        </div>
+        <div>
+            <label for="tags">Tags (comma-separated):</label><br>
+            <input type="text" name="tags" id="tags" size="50"
+                   value="{{ form_data.tags if form_data else '' }}">
+        </div>
+        <br>
+        <div>
+            <button type="submit">Log Task</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .task-log-container {
+        width: 60%;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .task-log-container div {
+        margin-bottom: 15px;
+    }
+    .task-log-container label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .task-log-container input[type="datetime-local"],
+    .task-log-container input[type="number"],
+    .task_log-container input[type="text"],
+    .task-log-container textarea {
+        width: 95%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box; /* So padding doesn't make it wider */
+    }
+    .task-log-container textarea {
+        resize: vertical;
+    }
+    .task-log-container button {
+        background-color: #007bff; /* Blue */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+    }
+    .task-log-container button:hover {
+        background-color: #0056b3; /* Darker blue */
+    }
+    .flashes {
+        list-style-type: none;
+        padding: 0;
+        margin-bottom: 15px;
+    }
+    .flashes li {
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    .flashes li.error {
+        background-color: #f8d7da; /* Light red for errors */
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .flashes li.success {
+        background-color: #d4edda; /* Light green for success */
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .flashes li.warning {
+        background-color: #fff3cd; /* Light yellow for warnings */
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="productivity-report-container">
+    <h2>Productivity Report</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="GET" action="{{ url_for('productivity_report') }}" class="filter-form">
+        <div>
+            <label for="report_date">Select Date for Report:</label>
+            <input type="date" name="report_date" id="report_date" 
+                   value="{{ report_date_str if report_date_str else '' }}" required>
+            <button type="submit">Get Report</button>
+        </div>
+    </form>
+
+    {% if summary %}
+    <div class="summary-details">
+        <h3>Productivity Report for: {{ summary.date }}</h3>
+        <p><strong>Total Tasks Completed:</strong> {{ summary.total_tasks }}</p>
+        <p><strong>Total Focused Time:</strong> {{ summary.total_focused_time_minutes }} minutes</p>
+        
+        <h4>Time Spent per Tag:</h4>
+        {% if summary.tasks_by_tag %}
+        <ul class="tags-list">
+            {% for tag, minutes in summary.tasks_by_tag.items() %}
+            <li><strong>{{ tag }}:</strong> {{ minutes }} minutes</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No tasks with tags found for this day.</p>
+        {% endif %}
+    </div>
+    {% elif report_date_str %} 
+        {# report_date_str exists but summary is None, implying no data or error handled by flash #}
+        <p class="no-data-message">No productivity data found for {{ report_date_str }}. Please ensure tasks are logged for this date.</p>
+    {% else %}
+        <p class="no-data-message">Please select a date to view the productivity report.</p>
+    {% endif %}
+</div>
+
+<style>
+    .productivity-report-container {
+        width: 70%;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .filter-form { /* Reusing similar style from view_tasks */
+        margin-bottom: 25px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .filter-form label {
+        font-weight: bold;
+    }
+    .filter-form input[type="date"] {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .filter-form button {
+        background-color: #007bff;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+    }
+    .filter-form button:hover {
+        background-color: #0056b3;
+    }
+    .summary-details {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #e9e9e9;
+        border-radius: 5px;
+        background-color: #fdfdfd;
+    }
+    .summary-details h3 {
+        color: #333;
+        margin-top: 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    .summary-details h4 {
+        color: #555;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    .summary-details p {
+        font-size: 1.1em;
+        line-height: 1.6;
+        color: #444;
+    }
+    .tags-list {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .tags-list li {
+        background-color: #f0f0f0;
+        margin-bottom: 5px;
+        padding: 8px;
+        border-radius: 3px;
+        font-size: 1em;
+    }
+    .no-data-message {
+        text-align: center;
+        font-style: italic;
+        color: #777;
+        margin-top: 30px;
+        font-size: 1.1em;
+    }
+    /* Flash messages styling (can be centralized in style.css if not already) */
+    .flashes { list-style-type: none; padding: 0; margin-bottom: 15px; }
+    .flashes li { padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+    .flashes li.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .flashes li.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .flashes li.warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+</style>
+{% endblock %}

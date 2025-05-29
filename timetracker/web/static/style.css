@@ -1,0 +1,120 @@
+/* General body styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Navigation styles */
+nav {
+    background: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+nav a {
+    color: #fff;
+    margin: 0 15px;
+    text-decoration: none;
+    font-size: 1.1em;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+hr {
+    margin-top: 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+
+/* Main content container */
+div.pomodoro-timer, div.task-log-container, div.productivity-report-container { /* Added other potential future containers */
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #333;
+    text-align: center;
+}
+
+/* Pomodoro Timer specific styles */
+.timer-info {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.timer-info p {
+    font-size: 1.2em;
+    margin: 8px 0;
+}
+
+#time-display {
+    font-size: 3em;
+    font-weight: bold;
+    color: #5a9; /* A calm color */
+}
+
+#interval-type {
+    text-transform: capitalize;
+}
+
+.timer-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.timer-actions form {
+    display: inline-block; /* Align forms/buttons in a row */
+    margin: 5px;
+}
+
+.timer-actions button {
+    background-color: #5cb85c; /* Green */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.timer-actions button:hover {
+    background-color: #4cae4c; /* Darker green */
+}
+
+/* Different colors for different actions */
+form[action*="pause"] button, form[action*="stop"] button {
+    background-color: #f0ad4e; /* Orange/Yellow for pause/stop */
+}
+form[action*="pause"] button:hover, form[action*="stop"] button:hover {
+    background-color: #ec971f;
+}
+
+form[action*="reset"] button {
+    background-color: #d9534f; /* Red for reset */
+}
+form[action*="reset"] button:hover {
+    background-color: #c9302c;
+}
+
+/* Style for hr in timer actions */
+.timer-actions hr {
+    margin: 15px auto;
+    width: 80%;
+    border-top: 1px solid #eee;
+}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="pomodoro-timer">
+    <h2>Pomodoro Timer</h2>
+    
+    <div class="timer-info">
+        <p>Current Interval: <strong id="interval-type">{{ current_state.interval_type.replace('_', ' ')|title }}</strong></p>
+        <p>Time Remaining: <strong id="time-display">00:00</strong></p>
+        <p>Status: <strong id="timer-status">{{ 'Running' if current_state.is_running else 'Paused/Stopped' }}</strong></p>
+        <p>Completed Work Intervals (Cycle): {{ current_state.get('completed_intervals', 0) % 4 }} / 4</p>
+    </div>
+
+    <div class="timer-actions">
+        <form action="{{ url_for('start_work') }}" method="post" style="display: inline;">
+            <button type="submit">Start Work</button>
+        </form>
+        <form action="{{ url_for('start_short_break') }}" method="post" style="display: inline;">
+            <button type="submit">Start Short Break</button>
+        </form>
+        <form action="{{ url_for('start_long_break') }}" method="post" style="display: inline;">
+            <button type="submit">Start Long Break</button>
+        </form>
+        
+        <hr>
+
+        {% if current_state.is_running %}
+        <form action="{{ url_for('pause_timer') }}" method="post" style="display: inline;">
+            <button type="submit">Pause</button>
+        </form>
+        {% else %}
+            {% if current_state.remaining_seconds > 0 and current_state.remaining_seconds < 
+                  (3000*60) %} {# A bit arbitrary upper limit to avoid resume on fresh state #}
+                  {# Check against actual full duration of current interval type would be better #}
+            <form action="{{ url_for('resume_timer') }}" method="post" style="display: inline;">
+                <button type="submit">Resume</button>
+            </form>
+            {% endif %}
+        {% endif %}
+
+        <form action="{{ url_for('reset_timer') }}" method="post" style="display: inline;">
+            <button type="submit">Reset Current Interval</button>
+        </form>
+        <form action="{{ url_for('stop_timer') }}" method="post" style="display: inline;">
+            <button type="submit">Stop (Back to Start)</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const timeDisplay = document.getElementById('time-display');
+    const timerStatusDisplay = document.getElementById('timer-status');
+    
+    // State from Flask session passed to template
+    let isRunning = {{ current_state.is_running|tojson }};
+    let displayUntil = {{ current_state.display_until|tojson }}; // Unix timestamp for when the timer should end
+    let remainingSecondsManual = {{ current_state.remaining_seconds|tojson }}; // Used if displayUntil is null (e.g. paused)
+
+    let countdownInterval;
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateTimerDisplay() {
+        let remainingSeconds;
+        if (isRunning && displayUntil) {
+            const now = Math.floor(Date.now() / 1000);
+            remainingSeconds = Math.max(0, displayUntil - now);
+        } else {
+            remainingSeconds = remainingSecondsManual;
+        }
+        
+        timeDisplay.textContent = formatTime(remainingSeconds);
+
+        if (isRunning && remainingSeconds <= 0) {
+            clearInterval(countdownInterval);
+            isRunning = false; // Stop JS timer
+            timerStatusDisplay.textContent = 'Finished!';
+            // Optionally, automatically post to a "finish" endpoint to update server state
+            // For now, user manually starts next interval.
+            // Example: fetch("{{ url_for('finish_interval') }}", { method: 'POST' });
+            // The page will then reload and show options for next interval based on server logic.
+            // For this version, we add a specific button or rely on user to click next state.
+            // The finish_interval route was added to handle this.
+            // Let's make the JS POST to finish_interval
+            fetch("{{ url_for('finish_interval') }}", {
+                method: 'POST',
+                headers: {
+                    // If using CSRF tokens, they need to be included here
+                    'X-CSRFToken': '{{ csrf_token if csrf_token else "" }}' // Example for CSRF
+                }
+            }).then(response => {
+                if(response.ok) {
+                    window.location.reload(); // Reload to get new state from server
+                }
+            });
+
+        } else if (!isRunning) {
+             timerStatusDisplay.textContent = 'Paused/Stopped';
+        } else {
+             timerStatusDisplay.textContent = 'Running';
+        }
+    }
+
+    function startCountdown() {
+        if (!isRunning) return;
+        
+        clearInterval(countdownInterval); // Clear any existing interval
+        updateTimerDisplay(); // Initial display update
+        countdownInterval = setInterval(updateTimerDisplay, 1000);
+    }
+
+    // Initial setup
+    if (isRunning && displayUntil) {
+        startCountdown();
+    } else {
+        // If not running, just display the remaining seconds from manual count
+        timeDisplay.textContent = formatTime(remainingSecondsManual);
+        timerStatusDisplay.textContent = 'Paused/Stopped';
+    }
+
+</script>
+{% endblock %}
