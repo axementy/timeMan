@@ -1,10 +1,27 @@
+"""
+This module contains the Flask application factory for the TimeTracker web interface.
+"""
 from flask import Flask
 
-def create_app():
-    app = Flask(__name__)
-    app.secret_key = 'dev_secret_key_pomodoro' # IMPORTANT: Change for production
+def create_app() -> Flask:
+    """
+    Creates and configures an instance of the Flask application.
 
-    # Configure static folder for CSS, JS, images etc.
+    This function sets up the application's secret key for session management,
+    configures paths for static files and templates (though defaults are often used),
+    and registers the application's routes defined in `routes.py`.
+
+    Returns:
+        Flask: The configured Flask application instance.
+    """
+    app = Flask(__name__)
+
+    # IMPORTANT: The secret key is crucial for session security.
+    # This default key is for development only and MUST be changed for production environments.
+    # Consider loading from an environment variable or a configuration file for production.
+    app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev_secret_key_pomodoro_REPLACE_ME')
+
+    # Static and template folder configuration (Flask defaults are usually sufficient)
     # Flask by default looks for a 'static' folder in the same directory as the app module,
     # or one specified by static_folder.
     # If app.py is in timetracker/web/, and static is timetracker/web/static/, it's default.

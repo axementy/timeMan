@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Reports</h2>
+    <p>Select a report type to view:</p>
+    <ul>
+        <li>
+            <a href="{{ url_for('daily_report_view') }}">Daily Report</a>
+            <form method="GET" action="{{ url_for('daily_report_view') }}" class="row g-3 align-items-center mt-2 mb-3">
+                <div class="col-auto">
+                    <label for="daily_report_date" class="visually-hidden">Date</label>
+                    <input type="date" class="form-control" id="daily_report_date" name="date" value="{{ today_date_str }}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">View Daily</button>
+                </div>
+            </form>
+        </li>
+        <li>
+            <a href="{{ url_for('weekly_report_view') }}">Weekly Report</a>
+            <form method="GET" action="{{ url_for('weekly_report_view') }}" class="row g-3 align-items-center mt-2">
+                <div class="col-md-4">
+                    <label for="weekly_report_start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="weekly_report_start_date" name="start_date" value="{{ current_week_start_str }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="weekly_report_end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="weekly_report_end_date" name="end_date" value="{{ current_week_end_str }}">
+                </div>
+                <div class="col-md-4 align-self-end">
+                    <button type="submit" class="btn btn-primary">View Weekly</button>
+                </div>
+            </form>
+        </li>
+    </ul>
+</div>
+{% endblock %}

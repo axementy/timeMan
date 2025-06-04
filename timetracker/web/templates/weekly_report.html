@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly Report ({{ report_data.start_date }} to {{ report_data.end_date }}){% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Weekly Report: {{ report_data.start_date }} to {{ report_data.end_date }}</h2>
+    <p>Total Days in Report: {{ report_data.total_days }}</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card mt-3">
+        <div class="card-header">Summary for the Week</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Total Tasks Completed:</strong> {{ report_data.total_tasks_completed_in_week }}</li>
+            <li class="list-group-item"><strong>Total Time Spent:</strong> {{ report_data.total_time_spent_minutes }} minutes</li>
+        </ul>
+    </div>
+
+    {% if report_data.time_spent_by_type %}
+    <div class="card mt-3">
+        <div class="card-header">Time Spent by Task Type</div>
+        <ul class="list-group list-group-flush">
+            {% for type, minutes in report_data.time_spent_by_type.items() %}
+            <li class="list-group-item">{{ type }}: {{ minutes }} minutes</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if report_data.daily_averages %}
+    <div class="card mt-3">
+        <div class="card-header">Daily Averages</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Average Tasks Completed per Day: {{ "%.2f"|format(report_data.daily_averages.avg_tasks_completed_per_day) }}</li>
+            <li class="list-group-item">Average Time Spent per Day: {{ "%.2f"|format(report_data.daily_averages.avg_time_spent_minutes_per_day) }} minutes</li>
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if report_data.tasks_worked_on_or_completed_details %}
+    <div class="card mt-3">
+        <div class="card-header">Tasks Worked On or Completed This Week</div>
+        <div class="list-group list-group-flush">
+            {% for task in report_data.tasks_worked_on_or_completed_details %}
+            <a href="{{ url_for('edit_existing_task', task_id=task.id) }}" class="list-group-item list-group-item-action">
+                {{ task.description }} (ID: {{ task.id }}) - Status: {{ task.status }}
+                {% if task.due_time %}| Due: {{ task.due_time.split('T')[0] }}{% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('reports_main_index') }}" class="btn btn-secondary">Back to Reports Index</a>
+    </div>
+</div>
+{% endblock %}

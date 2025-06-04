@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{{ form_title | default('Task Form') }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ form_title | default('Task Form') }}</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ form_action }}">
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" name="description" value="{{ task.description if task else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="priority" class="form-label">Priority</label>
+            <input type="number" class="form-control" id="priority" name="priority" value="{{ task.priority if task else 2 }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="due_time" class="form-label">Due Date/Time (YYYY-MM-DD HH:MM or YYYY-MM-DD)</label>
+            <input type="text" class="form-control" id="due_time" name="due_time" value="{{ task.due_time.strftime('%Y-%m-%d %H:%M') if task and task.due_time else '' }}" placeholder="e.g., 2024-12-31 17:00">
+        </div>
+        <div class="mb-3">
+            <label for="type" class="form-label">Type</label>
+            <input type="text" class="form-control" id="type" name="type" value="{{ task.type if task else 'work' }}" required>
+        </div>
+        {% if task %}
+        <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status">
+                <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="in-progress" {% if task.status == 'in-progress' %}selected{% endif %}>In Progress</option>
+                <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="deleted" {% if task.status == 'deleted' %}selected{% endif %}>Deleted</option>
+            </select>
+        </div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">{{ submit_button_text | default('Submit') }}</button>
+        <a href="{{ url_for('list_all_tasks') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

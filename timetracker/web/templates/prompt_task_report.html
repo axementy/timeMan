@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Task Completion Report{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Task Completion Report</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if task_info %}
+        <p class="lead">Congratulations on completing a major task: <strong>{{ task_info.description }}</strong> (ID: {{ task_info.id }})!</p>
+        <p>This task has accumulated significant logged time. Would you like to write a brief summary or report about its completion?</p>
+
+        <form method="POST" action="{{ url_for('prompt_task_report_route', task_id=task_info.id) }}">
+            <div class="mb-3">
+                <label for="report_text" class="form-label">Your Report/Summary:</label>
+                <textarea class="form-control" id="report_text" name="report_text" rows="8" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Report</button>
+            <a href="{{ url_for('pomodoro') }}" class="btn btn-secondary">Skip / Back to Pomodoro</a>
+        </form>
+    {% else %}
+        <p>No specific task information available for reporting, or the task was not found.</p>
+        <a href="{{ url_for('pomodoro') }}" class="btn btn-info">Back to Pomodoro</a>
+        <a href="{{ url_for('list_all_tasks') }}" class="btn btn-secondary">View All Tasks</a>
+    {% endif %}
+</div>
+{% endblock %}

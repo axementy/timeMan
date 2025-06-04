@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Task List{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Task List</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="mb-3">
+        <a href="{{ url_for('create_new_task') }}" class="btn btn-success">Create New Task</a>
+    </div>
+
+    {# Filter Form #}
+    <form method="GET" action="{{ url_for('list_all_tasks') }}" class="mb-4 p-3 border rounded">
+        <h5>Filters</h5>
+        <div class="row g-3">
+            <div class="col-md-2">
+                <label for="filter_priority" class="form-label">Priority:</label>
+                <input type="number" class="form-control" id="filter_priority" name="filter_priority" value="{{ current_filter_priority }}">
+            </div>
+            <div class="col-md-3">
+                <label for="filter_due_time" class="form-label">Due Date (YYYY-MM-DD):</label>
+                <input type="date" class="form-control" id="filter_due_time" name="filter_due_time" value="{{ current_filter_due_time }}">
+            </div>
+            <div class="col-md-2">
+                <label for="filter_type" class="form-label">Type:</label>
+                <input type="text" class="form-control" id="filter_type" name="filter_type" value="{{ current_filter_type }}">
+            </div>
+            <div class="col-md-2">
+                <label for="filter_status" class="form-label">Status:</label>
+                <select class="form-select" id="filter_status" name="filter_status">
+                    <option value="">Any</option>
+                    <option value="pending" {% if current_filter_status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="in-progress" {% if current_filter_status == 'in-progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if current_filter_status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="deleted" {% if current_filter_status == 'deleted' %}selected{% endif %}>Deleted</option>
+                </select>
+            </div>
+            {# Hidden fields to preserve current sort order when submitting filters #}
+            <input type="hidden" name="sort_by" value="{{ sort_by }}">
+            <input type="hidden" name="order" value="{{ sort_order }}">
+            <div class="col-md-3 align-self-end">
+                <button type="submit" class="btn btn-info">Apply Filters</button>
+                <a href="{{ url_for('list_all_tasks') }}" class="btn btn-secondary">Clear Filters</a>
+            </div>
+        </div>
+    </form>
+
+    {% if filters %}
+        <div class="mb-2">
+            <strong>Active Filters:</strong>
+            {% for key, value in filters.items() %}
+                <span class="badge bg-secondary">{{ key|replace('_',' ')|title }}: {{ value }}</span>
+            {% endfor %}
+            | Sorted by: {{ sort_by|replace('_',' ')|title }} ({{ sort_order|upper }})
+        </div>
+    {% else %}
+        <div class="mb-2">
+             Sorted by: {{ sort_by|replace('_',' ')|title }} ({{ sort_order|upper }})
+        </div>
+    {% endif %}
+
+
+    {% if tasks %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                {% macro sortable_th(field_name, display_text) %}
+                    {% set next_order = 'desc' if sort_by == field_name and sort_order == 'asc' else 'asc' %}
+                    <th>
+                        <a href="{{ url_for('list_all_tasks', sort_by=field_name, order=next_order,
+                                        filter_priority=current_filter_priority, filter_due_time=current_filter_due_time,
+                                        filter_type=current_filter_type, filter_status=current_filter_status) }}">
+                            {{ display_text }}
+                            {% if sort_by == field_name %}
+                                {% if sort_order == 'asc' %}&uarr;{% else %}&darr;{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                {% endmacro %}
+                {{ sortable_th('description', 'Description') }}
+                {{ sortable_th('priority', 'Priority') }}
+                {{ sortable_th('due_time', 'Due Date/Time') }}
+                {{ sortable_th('type', 'Type') }}
+                {{ sortable_th('status', 'Status') }}
+                {{ sortable_th('updated_at', 'Last Updated')}}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.description }}</td>
+                <td>{{ task.priority }}</td>
+                <td>{{ task.due_time.strftime('%Y-%m-%d %H:%M') if task.due_time else 'N/A' }}</td>
+                <td>{{ task.type }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <a href="{{ url_for('edit_existing_task', task_id=task.id) }}" class="btn btn-sm btn-primary mb-1">Edit</a>
+                    {% if task.status != 'deleted' %}
+                    <form method="POST" action="{{ url_for('delete_existing_task', task_id=task.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to mark this task as deleted?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No tasks found. <a href="{{ url_for('create_new_task') }}">Create one now!</a></p>
+    {% endif %}
+</div>
+
+{# Bootstrap JS for alert dismissal if not already in base.html #}
+{# <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.x.x/dist/js/bootstrap.bundle.min.js"></script> #}
+{% endblock %}

@@ -10,9 +10,11 @@
     <nav>
         <a href="{{ url_for('index') }}">Home</a> |
         <a href="{{ url_for('pomodoro') }}">Pomodoro Timer</a> |
-        <a href="{{ url_for('log_task') }}">Log Task</a> |
-        <a href="{{ url_for('view_tasks') }}">View Tasks</a> |
-        <a href="{{ url_for('productivity_report') }}">Productivity Report</a>
+        <a href="{{ url_for('list_all_tasks') }}">Manage Tasks</a> |
+        <a href="{{ url_for('reports_main_index') }}">Reports</a> |
+        <a href="{{ url_for('log_task_old') }}">Log Entry (Old)</a> |
+        <a href="{{ url_for('view_tasks_old') }}">View Entries (Old)</a> |
+        <a href="{{ url_for('productivity_report_old') }}">Productivity Report (Old)</a>
         <!-- More nav links will be added later -->
     </nav>
     <hr>

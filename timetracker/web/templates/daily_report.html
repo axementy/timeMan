@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Daily Report - {{ report_data.report_date }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Daily Report for {{ report_data.report_date }}</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card mt-3">
+        <div class="card-header">Summary</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Total Tasks Completed Today:</strong> {{ report_data.total_tasks_completed_on_date }}</li>
+            <li class="list-group-item"><strong>Total Time Spent Today:</strong> {{ report_data.total_time_spent_minutes }} minutes</li>
+        </ul>
+    </div>
+
+    {% if report_data.time_spent_by_type %}
+    <div class="card mt-3">
+        <div class="card-header">Time Spent by Task Type</div>
+        <ul class="list-group list-group-flush">
+            {% for type, minutes in report_data.time_spent_by_type.items() %}
+            <li class="list-group-item">{{ type }}: {{ minutes }} minutes</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if report_data.completed_tasks_details %}
+    <div class="card mt-3">
+        <div class="card-header">Tasks Marked Completed Today</div>
+        <div class="list-group list-group-flush">
+            {% for task in report_data.completed_tasks_details %}
+            <a href="{{ url_for('edit_existing_task', task_id=task.id) }}" class="list-group-item list-group-item-action">
+                {{ task.description }} (ID: {{ task.id }})
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if report_data.tasks_worked_on_details %}
+    <div class="card mt-3">
+        <div class="card-header">Other Tasks Worked On Today</div>
+        <div class="list-group list-group-flush">
+            {% for task in report_data.tasks_worked_on_details %}
+             <a href="{{ url_for('edit_existing_task', task_id=task.id) }}" class="list-group-item list-group-item-action">
+                {{ task.description }} (ID: {{ task.id }}) - Status: {{ task.status }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('reports_main_index') }}" class="btn btn-secondary">Back to Reports Index</a>
+    </div>
+</div>
+{% endblock %}

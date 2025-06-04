@@ -12,9 +12,21 @@
     </div>
 
     <div class="timer-actions">
-        <form action="{{ url_for('start_work') }}" method="post" style="display: inline;">
-            <button type="submit">Start Work</button>
+        <form action="{{ url_for('start_work') }}" method="post" style="display: inline-block; margin-bottom: 10px;">
+            <div>
+                <label for="task_id_select" style="margin-right: 5px;">Associate Task (Optional):</label>
+                <select name="task_id" id="task_id_select" style="margin-bottom: 5px;">
+                    <option value="">-- No Task --</option>
+                    {% for task_item in available_tasks %}
+                        <option value="{{ task_item.id }}" {% if current_state.current_task_id == task_item.id|string %}selected{% endif %}>
+                            {{ task_item.description }} (Priority: {{ task_item.priority }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit">Start Work Interval</button>
         </form>
+        <br> {# Ensure break buttons are on new line or spaced out #}
         <form action="{{ url_for('start_short_break') }}" method="post" style="display: inline;">
             <button type="submit">Start Short Break</button>
         </form>
